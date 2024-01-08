@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculadora de Lucro de CDB</title>
+    <style>
+        /* Estilos básicos para a página, com um esquema de cores agradável e fonte legível */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #E0F7FA;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            margin: 10px;
+            flex-basis: 60%;
+        }
+
+        .info-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            margin: 10px;
+            flex-basis: 30%;
+        }
+
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #B3E5FC;
+            font-size: 16px;
+        }
+
+    button {
+        background-color: #98b2eb; /* Changed to match Identificador de Boletos style */
+        color: white;
+        cursor: pointer;
+        border: none;
+        transition: background-color 0.2s;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        width: 100%;
+    }
+
+    button:hover {
+        background-color: #b2d7e2; /* Hover effect to match Identificador de Boletos style */
+    }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .result-text {
+            font-size: 16px;
+            color: #1565C0;
+            margin-top: 5px;
+        }
+
+        .info-box a {
+            color: #29B6F6;
+            text-decoration: none;
+        }
+
+        .info-box a:hover {
+            text-decoration: underline;
+        }
+
+        .info-box p {
+            margin-top: 10px;
+        }
+    </style>
+     </style>
+</head>
+<body>
+    <header>
+        <div class="center">
+            <div class="logo">
+                <img src="assets/logo.png" alt="Logotipo da Página">
+            </div>
+            <nav class="menu">
+                <a href="index.html">Inicial</a>
+                <a href="identificador_de_boletos.html">Calculadora de CDB a prazo</a>
+                <!-- Outros links do menu -->
+            </nav>
+        </div>
+    </header>
+    <script>
+        function calcularLucro() {
+            var valorCDB = parseFloat(document.getElementById('valorCDB').value) / 100;
+            var valorInvestido = parseFloat(document.getElementById('valorInvestido').value);
+            var tempo = parseFloat(document.getElementById('tempo').value);
+            var cdi = parseFloat(document.getElementById('cdi').value) / 100;
+            var periodo = document.getElementById('periodo').value;
+
+            if (isNaN(valorCDB) || isNaN(valorInvestido) || isNaN(tempo) || isNaN(cdi) || tempo <= 0) {
+                alert("Por favor, insira valores válidos e positivos.");
+                return;
+            }
+
+            var ganhoBrutoAnual = cdi * valorCDB;
+            var ganhoTotal = calcularGanhoTotal(valorInvestido, ganhoBrutoAnual, tempo, periodo);
+            var impostoRenda = calcularImpostoRenda(tempo, periodo, ganhoTotal);
+            var lucroLiquido = ganhoTotal - impostoRenda;
+
+            var projecaoTexto = '<strong>Projeções Futuras:</strong><br>';
+            for (var i = 1; i <= 4; i++) {
+                var valorFuturo = calcularValorFuturo(valorInvestido, ganhoBrutoAnual, i, 'meses');
+                projecaoTexto += 'Mês ' + i + ': R$ ' + valorFuturo.toFixed(2) + '<br>';
+            }
+            projecaoTexto += '1 ano: R$ ' + calcularValorFuturo(valorInvestido, ganhoBrutoAnual, 1, 'anos').toFixed(2) + '<br>';
+            projecaoTexto += '2 anos: R$ ' + calcularValorFuturo(valorInvestido, ganhoBrutoAnual, 2, 'anos').toFixed(2);
+
+            document.getElementById('resultado').innerHTML = 
+                'Lucro obtido aproximado sem descontos: R$ ' + ganhoTotal.toFixed(2) +
+                '<br>Lucro obtido com descontos: R$ ' + lucroLiquido.toFixed(2) +
+                '<br>Descontos: IR (' + ((impostoRenda / ganhoTotal) * 100).toFixed(2) + '%)';
+            document.getElementById('projecao').innerHTML = projecaoTexto;
+        }
+
+        function calcularGanhoTotal(valorInvestido, ganhoBrutoAnual, tempo, periodo) {
+            if (periodo === 'anos') {
+                return valorInvestido * (1 + ganhoBrutoAnual) ** tempo - valorInvestido;
+            } else {
+                return valorInvestido * (1 + ganhoBrutoAnual / 12) ** tempo - valorInvestido;
+            }
+        }
+
+        function calcularImpostoRenda(tempo, periodo, ganhoTotal) {
+            var aliquotaIR;
+            if (periodo === 'anos') {
+                tempo *= 12;
+            }
+            if (tempo <= 180) {
+                aliquotaIR = 0.225;
+            } else if (tempo <= 360) {
+                aliquotaIR = 0.20;
+            } else if (tempo <= 720) {
+                aliquotaIR = 0.175;
+            } else {
+                aliquotaIR = 0.15;
+            }
+            return ganhoTotal * aliquotaIR;
+        }
+
+        function calcularValorFuturo(valorInvestido, ganhoBrutoAnual, tempo, periodo) {
+            if (periodo === 'anos') {
+                tempo *= 12;
+            }
+            return valorInvestido * (1 + ganhoBrutoAnual / 12) ** tempo - valorInvestido;
+        }
+    </script>
+</head>
+<body>
+    <div class="main-container">
+        <div class="info-box">
+            <h3>Informações Úteis</h3>
+            <p><a href="https://investidor10.com.br/indices/cdi/" target="_blank">CDI Atual</a></p>
+            <p><a href="LINK_PARA_MAIS_INFORMAÇÕES" target="_blank">Mais Informações</a></p>
+            <p><a href="https://economia.uol.com.br/financas-pessoais/noticias/redacao/2018/08/14/como-calcular-rendimento-real-de-investimento.htm" target="_blank">Referências de Cálculo</a></p>
+            <p>CDI atual atualizado em dezembro: 12,34%</p>
+            <p>-----------</p> 
+        </div>
+
+        <div class="container">
+            <h2>Calculadora de Lucro de CDB</h2>
+            <!-- Elementos do formulário -->
+            <label for="valorCDB">Valor do CDB em %:</label>
+            <input type="number" id="valorCDB" placeholder="120">
+            <label for="valorInvestido">Valor a ser investido:</label>
+            <input type="number" id="valorInvestido" placeholder="1000">
+            <label for="tempo">Tempo de permanência:</label>
+            <input type="number" id="tempo" placeholder="1">
+            <select id="periodo">
+                <option value="anos">Anos</option>
+                <option value="meses">Meses</option>
+            </select>
+            <label for="cdi">CDI atual (%) :</label>
+            <input type="number" id="cdi" placeholder="12.35">
+            <button onclick="calcularLucro()">Calcular Lucro</button>
+
+            <!-- Resultados e Projeções -->
+            <div class="results-container">
+                <div class="result-box">
+                    <h3>Resultado do Investimento</h3>
+                    <p id="resultado" class="result-text"></p>
+                </div>
+                <div class="result-box">
+                    <h3>Projeção para 4 Meses Adicionais</h3>
+                    <p id="projecao" class="result-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
